@@ -1,0 +1,29 @@
+var opts = {
+	timeout : 2 * 60 * 1000, //default timeout 2 minutes
+	scanDelay : 30*1000 //default scanDelay 30 seconde 
+};
+
+var d = new (require('index'))(opts, {
+    on : function(x,cb){
+        setTimeout(cb, 100);
+    },
+    log: {
+        debug: console.log,
+        info: console.log,
+        warn: console.log,
+        error: console.log
+    }
+});
+
+d.emit = function(channel, value) {
+    console.log('Driver.emit', channel, value);
+    if (channel == 'register') {
+        value.emit = function(channel, value) {
+            console.log('Device.emit', channel, value);
+        };
+    }
+};
+
+d.save = function() {
+    console.log('Saved opts', opts);
+};
