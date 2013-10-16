@@ -24,6 +24,9 @@ Presence.prototype.init = function() {
 	this._app.log.info('Scan delay: '+this._opts.scanDelay);
 	this._app.log.info('Timeout: '+this._opts.timeout);
 	this._state = 'NobodyHome';
+	
+	self.emitCurrentState();
+	
 }
 
 Presence.prototype.scan = function() {
@@ -52,6 +55,9 @@ Presence.prototype.scan = function() {
     });
   });
   
+  //This is added because the dashboard loses the state after a timeout.
+  //Better send the status twice then not at all.
+  self.emitCurrentState();
   
     
   //Tell the system the scan is complete
@@ -71,39 +77,51 @@ Presence.prototype.updateState = function(){
   	
   	if(aantal == 0)
   {
-  	self.emitState('NobodyHome');
+  	self.actuateState('NobodyHome');
   } else if( aantal == self._hosts.length) 
   {
-  	self.emitState('EverybodyHome');
+  	self.actuateState('EverybodyHome');
   } else 
   {
-  	self.emitState('SomeoneHome');
+  	self.actuateState('SomeoneHome');
   }
 	
 	
 };
 
+Presence.prototype.emitCurrentState = function(){
+	var self = this;
+	self.emitState(self._state);
+};
+
 //I know this actually should be in the base driver, but this is the easiest way for now.
-Presence.prototype.emitState = function(newState){
+Presence.prototype.emitState = function(state){
 	var self = this;
 	
+	//Remember the old ID
+	var tempD = self.D;
+	//Set the Driver ID to 244 (generic state driver)
+	self.D = 244;
+	
+	//Send the new state to the Cloud
+	self.emit('data' ,state);
+  		
+	//Set the driver ID back to the regular ID
+	self.D = tempD;
+	
+};
+
+Presence.prototype.actuateState = function(newState) {
+	var self = this;
 	//Check if the state has change since the last time it fired.
 	//So we don't send out a 'new' state if it is the same as the last state.
-	if(self._state != newState) {
-		//Remember the old ID
-		var tempD = self.D;
-		//Set the Driver ID to 244 (generic state driver)
-		self.D = 244;
-
-  		//Log the state change
+	if(self._state != newState)
+	{
+	
+		//Log the state change
   		self._app.log.info('Ping => State changed from '+ self._state + ' to '+newState);
   		//Save the new state so we can compare it.
   		self._state = newState;
-  		
-  		//Send the new state to the Cloud
-  		self.emit('data' ,newState);
-  		
-  		//Set the driver ID back to the regular ID
-  		self.D = tempD;
-	}
-};
+  		self.emitState(newState);
+  	}
+}
