@@ -17,6 +17,6 @@
   "license": "MIT",
   "dependencies": {
   	"node-ping": "git://github.com/danielzzz/node-ping",
-    "ninja-presence-base": "git://github.com/elliots/ninja-presence-base"
+    "ninja-presence-base": "git://github.com/svrooij/ninja-presence-base"
   }
 }
