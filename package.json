@@ -1,6 +1,6 @@
 {
   "name": "ninja-presence-ping",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "NinjaBlocks Presence Driver - Ping",
   "main": "index.js",
   "scripts": {

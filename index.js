@@ -14,16 +14,15 @@ Presence.prototype.init = function() {
 	
 	this._ping = require ("ping");
 	
-// 	//Print default settings
-// 	this._app.log.info('Scan delay: '+this._opts.scanDelay);
-// 	this._app.log.info('Timeout: '+this._opts.timeout);
+	
 	
 	this._opts.scanDelay = this._opts.scanDelay || 20*1000; //Default scanDelay
 	this._opts.timeout = this._opts.timeout || 5*60*1000; //Default timeout
 	
 	//Print current settings.
-	this._app.log.info('Scan delay: '+this._opts.scanDelay);
-	this._app.log.info('Timeout: '+this._opts.timeout);
+	this._app.log.info('Ping => Hosts: ',this._opts.hosts);
+	this._app.log.info('Ping => Scan delay: '+this._opts.scanDelay);
+	this._app.log.info('Ping => Timeout: '+this._opts.timeout);
 	//this._state = 'NobodyHome';
 	
 	//self.emitCurrentState();
@@ -31,9 +30,12 @@ Presence.prototype.init = function() {
 }
 
 Presence.prototype.scan = function() {
+  
   var self = this;
+  self._app.log.info('Ping => Start pinging hosts');
   for(var ip in self._opts.hosts) {
   	var host = self._opts.hosts[ip];
+  	self._app.log.info('Ping => Ping host: ', host);
   	self._ping.sys.probe(host.ip,function(isAlive) {
   		if(isAlive) {
   			self._app.log.info('Ping => ' + host.name +' is up.');
@@ -83,6 +85,8 @@ Presence.prototype.scan = function() {
 Presence.prototype.config = function(rpc,cb) {
 
   var self = this;
+  
+ 
 
 	if (!rpc) {
 		return cb(null,{"contents":[
@@ -94,10 +98,10 @@ Presence.prototype.config = function(rpc,cb) {
 			{ "type":"close", "text":"Close"}
 		]});
 	}
-
+	 self._app.log.info('Settings', rpc.method, rpc);
 	switch (rpc.method) {
 		case 'addModal':
-    		cb(null, {
+    		return cb(null, {
         	"contents":[
           		{ "type": "paragraph", "text":"Please enter the IP address or the hostname and a nickname of the device to be pinged"},
           		{ "type": "input_field_text", "field_name": "ip", "value": "", "label": "IP/Hostname", "placeholder": "x.x.x.x", "required": true},
@@ -105,7 +109,8 @@ Presence.prototype.config = function(rpc,cb) {
           		{ "type": "submit", "name": "Add", "rpc_method": "add" },
           		{ "type":"close", "text":"Cancel"}
         	]
-      	});
+      		});
+      		
       	break;
     case 'add':
       var devOptions = {"ip": rpc.params.ip, "name": rpc.params.name}
@@ -146,7 +151,7 @@ Presence.prototype.config = function(rpc,cb) {
       });
       break;
     default:
-      log('Unknown rpc method', rpc.method, rpc);
+      self._app.log.error('Unknown rpc method', rpc.method, rpc);
   }
 };
 
