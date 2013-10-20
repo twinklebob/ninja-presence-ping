@@ -19,17 +19,19 @@ Presence.prototype.init = function() {
 	this._opts.scanDelay = this._opts.scanDelay || 20*1000; //Default scanDelay
 	this._opts.timeout = this._opts.timeout || 5*60*1000; //Default timeout
 	
+	this._opts.logging = this._opts.logging || true; //Logging is on by default
+	
 	//Print current settings.
-	this._app.log.info('Ping => Hosts: ',this._opts.hosts);
-	this._app.log.info('Ping => Scan delay: '+this._opts.scanDelay);
-	this._app.log.info('Ping => Timeout: '+this._opts.timeout);
+	this.writeToLog('Ping => Hosts: ',this._opts.hosts);
+	this.writeToLog('Ping => Scan delay: '+this._opts.scanDelay);
+	this.writeToLog('Ping => Timeout: '+this._opts.timeout);
 	
 }
 
 Presence.prototype.scan = function() {
   
   var self = this;
-  self._app.log.info('Ping => Start pinging hosts');
+  self.writeToLog('Ping => Start pinging hosts');
   for(var ip in self._opts.hosts) {
   	var host = self._opts.hosts[ip];
   	self.pingHost(host);
@@ -44,10 +46,10 @@ Presence.prototype.scan = function() {
 //Here we ping the host. Host is an object with a name and an ipaddress
 Presence.prototype.pingHost = function(host){
 	var self = this;
-	self._app.log.info('Ping => Ping host: ', host);
+	self.writeToLog('Ping => Ping host: ', host);
 	self._ping.sys.probe(host.ip,function(isAlive) {
   		if(isAlive) {
-  			self._app.log.info('Ping => ' + host.name +' is up.');
+  			self.writeToLog('Ping => ' + host.name +' is up.');
   			self.see({
   				name : host.name,
   				id : host.ip.replace('.','_'),
@@ -65,17 +67,19 @@ Presence.prototype.config = function(rpc,cb) {
   var self = this;
   
 	if (!rpc) {
+		var loggingToggle = "Turn logging " +(self._opts.logging)?"Off":"On";
 		return cb(null,{"contents":[
 			{ "type": "paragraph", "text": "Welcome to the Ping Presence driver!"},
 			{ "type": "submit", "name": "General Settings", "rpc_method": "genSettings" },
 			{ "type": "paragraph", "text": "Before it works you have to add some devices!"},
 			{ "type": "submit", "name": "Add device to ping", "rpc_method": "addModal" },
-			
+			{ "type": "paragraph", "text": "Switch logging On/Off if you think it clutters your log file"},
+			{ "type": "submit", "name": loggingToggle, "rpc_method": "toggleLogging" },
 			{ "type":"close", "text":"Close"}
 		]});
 	}
 	
-	self._app.log.info('Settings', rpc.method, rpc);
+	self.writeToLog('Settings', rpc.method, rpc);
 	
 	switch (rpc.method) {
 		case 'addModal':
@@ -113,7 +117,7 @@ Presence.prototype.config = function(rpc,cb) {
       });
       break;
   	case 'saveSettings':
-      console.log('New scandelay '+rpc.params.scanDelay+' and timeout '+rpc.params.timeout);
+      self.writeToLog('New scandelay '+rpc.params.scanDelay+' and timeout '+rpc.params.timeout);
       self._opts.scanDelay = (rpc.params.scanDelay *1000);
       self._opts.timeout = (rpc.params.timeout *1000);
       self.save();
@@ -126,6 +130,17 @@ Presence.prototype.config = function(rpc,cb) {
         ]
       });
       break;
+    case 'toggleLogging':
+    	self._opts.logging = !self._opts.logging;
+    	self.save();
+    	var loggingToggle = "Logging to the ninjablocks log turned " + (self._opts.logging)?"On":"Off"
+    	cb(null, {
+    		"contents": [
+    			{ "type":"paragraph", "text":loggingToggle},
+    			{ "type":"close", "text":"Close"}
+    		]
+    	});
+    	break;
     default:
       self._app.log.error('Unknown rpc method', rpc.method, rpc);
   }
