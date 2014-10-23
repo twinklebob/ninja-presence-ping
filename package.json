@@ -1,22 +1,33 @@
 {
   "name": "ninja-presence-ping",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "NinjaBlocks Presence Driver - Ping",
   "main": "index.js",
+  "homepage":"https://github.com/svrooij/ninja-presence-ping",
+  "bugs":"https://github.com/svrooij/ninja-presence-ping/issues",
+  "license": "MIT",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+
   "repository":{
     "type": "git",
     "url": "https://github.com/svrooij/ninja-presence-ping.git"
   },
   "author": {
     "name": "Stephan van Rooij",
-    "email": "stephan@smartersoft.nl"
+    "email": "stephan@smartersoft.nl",
+    "url":"http://svrooij.nl"
   },
-  "license": "MIT",
+  "contributors":[
+    {
+      "name": "Baptiste Wicht",
+      "url": "https://github.com/wichtounet"
+    }
+  ],
+
   "dependencies": {
-  	"node-ping": "git://github.com/danielzzz/node-ping",
+  	"ping": "git://github.com/svrooij/node-ping",
     "ninja-presence-base": "git://github.com/svrooij/ninja-presence-base"
   }
 }
