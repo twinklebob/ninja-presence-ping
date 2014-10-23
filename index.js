@@ -19,7 +19,8 @@ Presence.prototype.init = function() {
 	this._opts.scanDelay = this._opts.scanDelay || 20*1000; //Default scanDelay
 	this._opts.timeout = this._opts.timeout || 5*60*1000; //Default timeout
 	
-	this._opts.logging = this._opts.logging || true; //Logging is on by default
+	//Logging is on by default
+	this._opts.logging = this._opts.logging == undefined ? true : this._opts.logging;
 	
 	//Print current settings.
 	this.writeToLog('Ping => Hosts: ',this._opts.hosts);
