@@ -27,7 +27,7 @@
   ],
 
   "dependencies": {
-  	"ping": "git://github.com/svrooij/node-ping",
+  	"ping": "git://github.com/danielzzz/node-ping",
     "ninja-presence-base": "git://github.com/svrooij/ninja-presence-base"
   }
 }
